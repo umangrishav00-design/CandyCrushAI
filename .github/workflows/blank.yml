@@ -27,6 +27,23 @@ jobs:
           mkdir project
           unzip -q CandyCrushAI_GitHubBuild.zip -d project
 
+      - name: Set Java and Kotlin targets to 17
+        run: |
+          find project -name build.gradle.kts -print
+          FILE=$(find project -path '*/app/build.gradle.kts' -print -quit)
+          test -n "$FILE"
+          python3 - "$FILE" <<'PY'
+          import sys
+          from pathlib import Path
+          p = Path(sys.argv[1])
+          s = p.read_text()
+          s = s.replace('jvmTarget = "1.8"', 'jvmTarget = "17"')
+          s = s.replace("jvmTarget = '1.8'", "jvmTarget = '17'")
+          s = s.replace('VERSION_1_8', 'VERSION_17')
+          s = s.replace('VERSION_1_8', 'VERSION_17')
+          p.write_text(s)
+          PY
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
